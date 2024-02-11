@@ -1,4 +1,4 @@
-# Romeo Tim-Louangphixai
+# Romeo Tim-Louangphixai, Chad Abboud, Brendan Pham
 # Student ID: 01819835
 # Network Design: Principles, Protocols & Applications
 # Programming Project Phase 2: UDP Client and Server -->: Implement RDT 1.0 over a reliable UDP channel
