@@ -55,5 +55,6 @@ if __name__ == "__main__":
     send_udp_file(server,port,file_path)
 
 #Sources
-#[1] Vinod Vokkarane, "Socket Programming 101 in Python," shared on UML blackboard site for course EECE.4820, Online, Jan 16, 2024, unpublished.
+# [1] Vinod Vokkarane, "Socket Programming 101 in Python," shared on UML blackboard site for course EECE.4820, Online, Jan 16, 2024, unpublished.
+# [2] J. F. Kurose and K. W. Ross, Computer Networking: A Top-down Approach (7th Ed.). Boston: Pearson, 2017. 
 
