@@ -24,36 +24,35 @@ from socket import *
 # function will take the image file and break it down to several fixed packet size
 
 
+# Importing socket library
+
 def make_packet(file, packet_size=1024):
-    # Needs to read the file and allocate packet data at a fixed size
-    while True:  # this will start the loop, and until keeping going until it is broken
+    while True:
         data = file.read(packet_size)
-        if not data:  # will check if data is empty --> after the entire file has been read file.read(packet_size) should return an empty byte and then break
+        if not data:
             break
-        yield data  # works like return, but it will call data without ending the function entirely
-
-        # Changing function name to best match UDP file being sent
+        yield data
 
 
-def send_udp_file(server_name, server_port, file):  # fxn name chance to file instead of message
+def send_udp_file(server_name, server_port, file_path):
     client_socket = socket(AF_INET, SOCK_DGRAM)
-
-    # Attempt to open the file in binary mode --> "rb" will be able to set in binary mode
     with open(file_path, "rb") as file:
-        # Start to Read and Send the file in packets
-        for packet in make_packet(file):  # utilizes make_packet function file chunks and yields these chunk one bby one
-            client_socket.sendto(packet, (server_name, server_port))  # for each packet yielded send to the specified server.
+        for packet in make_packet(file):
+            client_socket.sendto(packet, (server_name, server_port))
 
-        # Close the Socket
-        client_socket.close()  # After all the packet is sent, socket must be closed and will free up system resources.
+        # Send a specific message to signal the end of the file transmission
+        end_of_file_marker = "EOF".encode()  # Encoding the string "EOF" to bytes
+        client_socket.sendto(end_of_file_marker, (server_name, server_port))
+
+    client_socket.close()
 
 
-# Example usage
 if __name__ == "__main__":
-    server = 'localhost'  # We are using 'hostname' possibly would have to change for future use
-    port = 12000  # We are using 12000 would have to change if different one is used
-    file_path = input('Enter the path of the BMP file you wish to send: ')  # instead of making a specified address this will allow the user to send whatever BMP file if multiple need to be sent, but they can just copy and past the path
+    server = 'localhost'
+    port = 12000
+    file_path = input('Enter the path of the BMP file you wish to send: ')
     send_udp_file(server, port, file_path)
+
 
 # Sources
 # [1] Vinod Vokkarane, "Socket Programming 101 in Python," shared on UML blackboard site for course EECE.4820, Online, Jan 16, 2024, unpublished.
