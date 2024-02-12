@@ -6,7 +6,7 @@
 # This file if for the creation and management of the UDP Server
 
 # importing socket library
-from socket import *
+
 
 # creating server and defining parameters --> I am using a function to create this server in which would be called onto
 # for organization and for possible need to edit future server name and port number easier
@@ -22,33 +22,41 @@ from socket import *
 # *********************************************************************************************
 
 
-def start_udp_server(server_port, file_path):       # adding additional parameter file_path
+# Importing necessary libraries
+from socket import *
+import os
+
+
+def start_udp_server(server_port, directory_path):
     server_socket = socket(AF_INET, SOCK_DGRAM)
     server_socket.bind(('', server_port))
-    print("The UDP is established now the server is ready to receive!\n")
+    print("The UDP server is now ready to receive!\n")
 
-    # We need to create an output.bmp file so that will be able to write the file with the data from client
-    file_path = file_path = directory_path + '\\output.bmp'
+    # Ensure directory_path is correctly handled
+    if not os.path.isdir(directory_path):
+        print(f"The provided directory path does not exist: {directory_path}")
+        return
 
-    # Needs to open the file for writing in Binary Mode --> "wb" will open a file for writing in binary  mode
-    with open(file_path, "wb") as file:  # -> writing to the variable file
-        while True:  # start loop
-            packet, client_address = server_socket.recvfrom(1024)  # server waits for data to arrive, receives up too 2048 bytes of data from the client
-            # NOTE: in the textbook the use function calls like extract(packet) and deliver_data
-            # when you receive a packet using the recvfrom() method, the data you receive is essentially the result of the extract() operation.
-            # When you write the received packet to a file (file.write(packet)), you are delivering the data to its final destination (the file), so it serves the deliver_data(data) function
+    output_file_path = os.path.join(directory_path, 'output.bmp')
 
-            if not packet:  # Will check is the received message is empty this is a sign that there is no more data needed to be sent.
+    with open(output_file_path, "wb") as file:
+        while True:
+            packet, client_address = server_socket.recvfrom(1024)
+
+            # Check for the end of file marker
+            if packet.decode('utf-8', errors='ignore') == "EOF":
                 break
+
             file.write(packet)
 
-    server_socket.close()  # close the socket
+    server_socket.close()
+    print("File received and written successfully.")
 
 
-# Example usage
 if __name__ == "__main__":
     port = 12000
-    directory_path = input('What is the directory path you would like the create and receive the BMP file being transferred:')
+    directory_path = input(
+        'What is the directory path you would like to create and receive the BMP file being transferred: ')
     start_udp_server(port, directory_path)
 
 # Sources Used:
