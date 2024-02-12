@@ -1,0 +1,48 @@
+Readme File
+
+Programming Project Phase 2: Implement RDT 1.0 over a reliable UDP channel
+
+Was done as a group
+
+Group members:
+Chad Abboud
+Brendan Pham
+Romeo Tim-Louangphixai
+
+OS used:
+Windows 10 & 11
+
+Language:
+Python 3.12.1
+
+Files submitted:
+udp_client_mod.py
+udp_server_mod.py
+
+Instructions:
+
+UDP Client:
+
+Run the UDP client file.
+When prompted, enter the path of the BMP file you wish to send.
+The client will break down the file into fixed-size packets and send them to the server sequentially over UDP.
+Once all packets are sent, the client will signal the end of the transmission by sending an "end of file" marker.
+The client will then close the connection.
+
+UDP Server:
+
+Run the UDP server file.
+When prompted, enter the directory path where you want to store the received BMP file.
+The server will listen for incoming packets from the client.
+Upon receiving packets, the server will write them to a BMP file in the specified directory.
+Once the "end of file" marker is received, indicating the end of the transmission, the server will close the connection and display a success message.
+
+Note:
+
+Ensure that both the client and server files are running and have access to each other over the network.
+Make sure to provide correct file paths and directory paths as input when prompted.
+Depending on your network configuration, you may need to adjust firewall settings to allow communication between the client and server.
+
+
+
+
