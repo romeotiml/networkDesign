@@ -3,17 +3,20 @@
 # Network Design: Principles, Protocols & Applications
 # Programming Project Phase 3: Implement RDT 2.2 over an unreliable UDP channel with bit-errors
 
-# This file is for the creation and management of the UDP Server
+# This file is for the creation and management of the UDP Client
 
-# Importing necessary libraries
+# Importing socket library
 from socket import *
-import os
-import hashlib
 
 # Constants
 SEQUENCE_SIZE = 32  # Size of the sequence number in bits
 PACKET_SIZE = 1024  # Packet size in bytes
 
+# Function to create RDT 2.2 packet
+def create_packet(seq_num, data):
+    seq_num_bytes = seq_num.to_bytes(SEQUENCE_SIZE // 8, 'big')
+    checksum = calculate_checksum(seq_num_bytes + data)
+    return seq_num_bytes + checksum + data
 
 # Function to calculate checksum using MD5 hashing
 def calculate_checksum(data):
@@ -22,55 +25,32 @@ def calculate_checksum(data):
     checksum = hash_object.digest()
     return checksum
 
+# Function to send UDP file using RDT 2.2 protocol
+def send_rdt_packets(server_name, server_port, file_path):
+    client_socket = socket(AF_INET, SOCK_DGRAM)
+    with open(file_path, "rb") as file:
+        seq_num = 0
+        for packet_data in make_packet(file):
+            rdt_packet = create_packet(seq_num, packet_data)
+            client_socket.sendto(rdt_packet, (server_name, server_port))
+            seq_num = (seq_num + 1) % (2 ** SEQUENCE_SIZE)
 
-# Function to validate packet checksum
-def validate_checksum(seq_num, checksum, data):
-    expected_checksum = calculate_checksum(seq_num.to_bytes(SEQUENCE_SIZE // 8, 'big') + data)
-    return checksum == expected_checksum
+        # Send end-of-file marker
+        eof_marker = create_packet(seq_num, b"EOF")
+        client_socket.sendto(eof_marker, (server_name, server_port))
 
+    client_socket.close()
 
-# Function to start the UDP server and receive RDT 2.2 packets
-def start_udp_server(server_port, directory_path):
-    server_socket = socket(AF_INET, SOCK_DGRAM)
-    server_socket.bind(('', server_port))
-    print("The UDP server is now ready to receive!\n")
-
-    # Ensure directory_path is correctly handled
-    if not os.path.isdir(directory_path):
-        print(f"The provided directory path does not exist: {directory_path}")
-        return
-
-    output_file_path = os.path.join(directory_path, 'output.jpg')
-
-    with open(output_file_path, "wb") as file:
-        expected_seq_num = 0
-        while True:
-            packet, client_address = server_socket.recvfrom(1024 + SEQUENCE_SIZE // 8 + hashlib.md5().digest_size)
-            seq_num_bytes = packet[:SEQUENCE_SIZE // 8]
-            checksum = packet[SEQUENCE_SIZE // 8:SEQUENCE_SIZE // 8 + hashlib.md5().digest_size]
-            data = packet[SEQUENCE_SIZE // 8 + hashlib.md5().digest_size:]
-
-            # Check for end of file marker
-            if data == b"EOF":
-                break
-
-            seq_num = int.from_bytes(seq_num_bytes, 'big')
-
-            # Validate packet using checksum
-            if validate_checksum(seq_num, checksum, data) and seq_num == expected_seq_num:
-                file.write(data)
-                expected_seq_num = (expected_seq_num + 1) % (2 ** SEQUENCE_SIZE)
-                ack_packet = seq_num_bytes + checksum + b"ACK"
-                server_socket.sendto(ack_packet, client_address)
-            else:
-                nak_packet = seq_num_bytes + checksum + b"NAK"
-                server_socket.sendto(nak_packet, client_address)
-
-    server_socket.close()
-    print("File received and written successfully.")
-
+# Function to break file into fixed-sized packets
+def make_packet(file, packet_size=PACKET_SIZE):
+    while True:
+        data = file.read(packet_size)
+        if not data:
+            break
+        yield data
 
 if __name__ == "__main__":
-    port = 12000
-    directory_path = input('Enter the directory path to store the received JPEG file: ')
-    start_udp_server(port, directory_path)
+    server = 'localhost'
+    port = 12001
+    file_path = input('Enter the path of the JPEG file you wish to send: ')
+    send_rdt_packets(server, port, file_path)
