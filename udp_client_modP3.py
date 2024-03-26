@@ -7,6 +7,7 @@
 
 # Importing socket library
 from socket import *
+import hashlib
 
 # Constants
 SEQUENCE_SIZE = 32  # Size of the sequence number in bits
