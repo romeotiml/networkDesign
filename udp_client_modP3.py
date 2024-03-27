@@ -1,5 +1,4 @@
 # Romeo Tim-Louangphixai, Chad Abboud, Brendan Pham
-# Student ID: 01819835
 # Network Design: Principles, Protocols & Applications
 # Programming Project Phase 3: Implement RDT 2.2 over an unreliable UDP channel with bit-errors
 
