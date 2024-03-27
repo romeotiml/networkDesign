@@ -25,6 +25,10 @@ def validate_checksum(seq_num, checksum, data):
 # Function to start the UDP server and receive RDT 2.2 packets
 def start_udp_server(server_port, directory_path):
     server_socket = socket(AF_INET, SOCK_DGRAM)
+
+    # Allow the socket to reuse the address to avoid 'address already in use' error
+    server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
     server_socket.bind(('', server_port))
     print("The UDP server is now ready to receive!\n")
 
@@ -64,6 +68,6 @@ def start_udp_server(server_port, directory_path):
 
 
 if __name__ == "__main__":
-    port = 12000
+    port = 12001
     directory_path = input('Enter the directory path to store the received JPEG file: ')
     start_udp_server(port, directory_path)
