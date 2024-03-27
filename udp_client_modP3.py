@@ -63,4 +63,3 @@ if __name__ == "__main__":
     port = 12001
     file_path = input('Enter the path of the JPEG file you wish to send: ')
     send_rdt_packets(server, port, file_path)
-    
