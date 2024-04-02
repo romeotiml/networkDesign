@@ -15,8 +15,9 @@ CHECKSUM_SIZE = 16
 WINDOW_SIZE = 5  # Adjust window size as needed
 
 # Scenario settings for server
-DATA_PACKET_BIT_ERROR_RATE = 0 # Bit error rate for data packets
+DATA_PACKET_BIT_ERROR_RATE = 0  # Bit error rate for data packets
 DATA_PACKET_LOSS_RATE = 0  # Loss rate for data packets
+
 
 # Function to calculate checksum
 def calculate_checksum(data):
@@ -26,10 +27,12 @@ def calculate_checksum(data):
     checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
     return checksum_hex.encode('utf-8')  # Convert the hexadecimal string to bytes
 
+
 # Function to verify checksum
 def verify_checksum(seq_num_bytes, received_checksum, data):
     calculated_checksum = calculate_checksum(seq_num_bytes + data)
     return calculated_checksum == received_checksum
+
 
 # Function to simulate data packet bit errors
 def introduce_data_packet_bit_errors(data_packet, error_rate):
@@ -39,6 +42,7 @@ def introduce_data_packet_bit_errors(data_packet, error_rate):
         corrupted_byte = data_packet[byte_index] ^ (1 << bit_index)  # Flip the selected bit
         data_packet = data_packet[:byte_index] + bytes([corrupted_byte]) + data_packet[byte_index + 1:]
     return data_packet
+
 
 # Function to start UDP server
 def start_udp_server(port=SERVER_PORT):
@@ -95,6 +99,7 @@ def start_udp_server(port=SERVER_PORT):
 
     server_socket.close()
     print("Server shutdown.")
+
 
 if __name__ == "__main__":
     start_udp_server()
