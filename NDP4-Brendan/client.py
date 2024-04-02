@@ -21,8 +21,9 @@ CHECKSUM_SIZE = 16
 PACKET_SIZE = 1024
 
 # Scenario settings for client
-ACK_PACKET_BIT_ERROR_RATE = 0 # Bit error rate for ACK packets
-ACK_PACKET_LOSS_RATE = 0 # Loss rate for ACK packets
+ACK_PACKET_BIT_ERROR_RATE = 0  # Bit error rate for ACK packets
+ACK_PACKET_LOSS_RATE = 0  # Loss rate for ACK packets
+
 
 # Function to calculate checksum
 def calculate_checksum(data):
@@ -35,16 +36,19 @@ def calculate_checksum(data):
     checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
     return checksum_hex.encode('utf-8')  # Convert the hexadecimal string to bytes
 
+
 # Function to verify checksum
 def verify_checksum(seq_num_bytes, received_checksum, data):
     calculated_checksum = calculate_checksum(seq_num_bytes + data)
     return calculated_checksum == received_checksum
+
 
 # Function to create packet
 def create_packet(seq_num, data):
     seq_num_bytes = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
     checksum = calculate_checksum(seq_num_bytes + data)
     return seq_num_bytes + checksum + data
+
 
 # Function to introduce bit errors in ACK packet
 def introduce_ack_bit_errors(ack_packet, error_rate=0.01):
@@ -68,9 +72,11 @@ def introduce_ack_bit_errors(ack_packet, error_rate=0.01):
 
     return bytes(corrupted_ack)
 
+
 # Function to simulate ACK packet loss
 def simulate_ack_packet_loss():
     return random.random() < ACK_PACKET_LOSS_RATE
+
 
 # Function to send RDT packets
 def send_rdt_packets():
@@ -132,6 +138,7 @@ def send_rdt_packets():
     print(f"Start Time: {time.strftime('%X', time.localtime(start_time))}")
     print(f"End Time: {time.strftime('%X', time.localtime(end_time))}")
     print(f"Time Taken: {end_time - start_time:.2f} seconds")
+
 
 if __name__ == "__main__":
     send_rdt_packets()  # Call the send_rdt_packets function when the script is executed
