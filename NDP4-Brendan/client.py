@@ -21,8 +21,8 @@ CHECKSUM_SIZE = 16
 PACKET_SIZE = 1024
 
 # Scenario settings for client
-ACK_PACKET_BIT_ERROR_RATE = 0.1  # Bit error rate for ACK packets
-ACK_PACKET_LOSS_RATE = 0.1  # Loss rate for ACK packets
+ACK_PACKET_BIT_ERROR_RATE = 0 # Bit error rate for ACK packets
+ACK_PACKET_LOSS_RATE = 0 # Loss rate for ACK packets
 
 # Function to calculate checksum
 def calculate_checksum(data):
@@ -58,6 +58,10 @@ def introduce_ack_bit_errors(ack_packet, error_rate=0.01):
     corrupted_ack = bytearray(ack_packet)
 
     for _ in range(num_errors):
+        # Check if the length of the packet is greater than the sum of sequence size and checksum size
+        if len(corrupted_ack) <= SEQUENCE_SIZE + CHECKSUM_SIZE:
+            break  # Exit the loop if the packet size is too small
+
         byte_index = random.randint(SEQUENCE_SIZE + CHECKSUM_SIZE, len(corrupted_ack) - 1)
         bit_index = random.randint(0, 7)  # Select a random bit position within the byte
         corrupted_ack[byte_index] ^= (1 << bit_index)  # Flip the selected bit
