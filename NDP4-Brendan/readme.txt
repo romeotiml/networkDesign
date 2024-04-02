@@ -1,6 +1,6 @@
 Readme File
 
-Programming Project Phase 4 (IN PROGRESS): : Implement RDT 3.0 over an unreliable UDP channel with simulations of ACK packer bit-error, Data packet bit-error, ACK packer loss, Data packet loss and be able to recover the errors.
+Programming Project Phase 4: Enhance RDT 2.2 to RDT 3.0 over an unreliable UDP channel with simulations of ACK packer bit-error, Data packet bit-error, ACK packer loss, Data packet loss and be able to recover the errors.
 
 Was done as a group
 
