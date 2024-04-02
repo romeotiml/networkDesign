@@ -86,7 +86,7 @@ def send_rdt_packets():
 
     file_path = r'C:\Users\brend\Desktop\sample.jpg'  # Specify the file path
     seq_num = 0  # Initialize sequence number
-    max_retries = 10  # Maximum number of retries for each packet
+    max_retries = 15  # Maximum number of retries for each packet
 
     start_time = time.time()  # Start timer
 
