@@ -23,10 +23,9 @@ main.py
 Instructions: This phase was run using PyCharm with the latest Python update.
 
 The code was created to simplify the use and make it cleaner. To run the program, you need to be able to use an IDE or any application that allows you to use Python. 
-Next, change the necessary 'file_path' and 'output_directory' in their respective files. After that is complete, start by running the server script and then the main script; this will run the rest of the other scripts without
-you manually running them. Depending on your .jpeg file size, you should get an output located in your designated 'output_directory'.
+Next, change the necessary 'file_path' and 'output_directory' in their respective files. After that is complete, start by running the server script and then the client script; Depending on your .jpeg file size, you should get an output located in your designated 'output_directory'.
 
-UDP Main: Nothing needs to be changed here in the main script; it just needs to be run with the click of a button.
+UDP Main: This is not needed if you are using pyCharm. You can use this if you do not want to run server or client separately.
 
 UDP Client: Only need to change the 'file_path' in the client script to know what directory the .jpeg is being taken from; there is no need to change anything else.
 
