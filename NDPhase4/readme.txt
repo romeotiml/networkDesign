@@ -19,7 +19,6 @@ Files submitted:
 client.py
 server.py
 main.py
-bit_error_simulation.py
 
 Instructions: This phase was run using PyCharm with the latest Python update.
 
@@ -33,7 +32,6 @@ UDP Client: Only need to change the 'file_path' in the client script to know wha
 
 UDP Server: The only change needed here is the 'output_directory'; this is for where your .jpeg output will be placed after running the scripts.
 
-UDP bit_error_simulation: There are no instructions to run this script; it is called in the other scripts. It just needs to be open and part of your project folder.
 
 Note: Ensure that both the client and server files are running and have access to each other over the network. Make sure to provide correct file paths and directory paths as input when prompted. 
 Depending on your network configuration, you may need to adjust firewall settings to allow communication between the client and server. The server and client use port 12001 for communication. 
