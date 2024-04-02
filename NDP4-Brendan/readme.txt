@@ -5,9 +5,9 @@ Programming Project Phase 4 (IN PROGRESS): : Implement RDT 3.0 over an unreliabl
 Was done as a group
 
 Group members:
-Chad Abboud
 Brendan Pham
 Romeo Tim-Louangphixai
+Chad Abboud
 
 OS used:
 Windows 10 & 11
@@ -23,7 +23,8 @@ server.py
 Instructions: This phase was run using PyCharm with the latest Python update.
 
 The code was created to simplify the use and make it cleaner. To run the program, you need to be able to use an IDE or any application that allows you to use Python. 
-Next, change the necessary 'file_path' and 'output_directory' in their respective files. After that is complete, start by running the server script and then the client script; Depending on your .jpeg file size, you should get an output located in your designated 'output_directory'.
+
+Next, change the necessary 'file_path' in client.py and 'output_directory' in server.py After that is complete, start by running the server script and then the client script; Depending on your .jpeg file size, you should get an output located in your designated 'output_directory'.
 
 UDP Client: Only need to change the 'file_path' in the client script to know what directory the .jpeg is being taken from; Please change the Scenario Options to whatever rate the user would prefer. (ex. 0.05 = 5% Error)
 
