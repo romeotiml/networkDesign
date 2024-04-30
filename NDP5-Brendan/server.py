@@ -1,11 +1,6 @@
-# Romeo Tim-Louangphixai, Chad Abboud, Brendan Pham
-# Network Design: Principles, Protocols & Applications
-# Programming Project Phase 4: Implement GBN (Go-Back-N) over an unreliable UDP channel with bit-errors and loss
-
 from socket import *
 import os
 import random
-import time
 
 SERVER_PORT = 12001
 SEQUENCE_SIZE = 4
@@ -17,6 +12,7 @@ DATA_PACKET_BIT_ERROR_RATE = 0  # Bit error rate for data packets
 DATA_PACKET_LOSS_RATE = 0  # Loss rate for data packets
 TIMEOUT = 0.1  # Timeout value for retransmissions
 
+
 # Function to calculate checksum
 def calculate_checksum(data):
     s = 0
@@ -25,10 +21,12 @@ def calculate_checksum(data):
     checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
     return checksum_hex.encode('utf-8')  # Convert the hexadecimal string to bytes
 
+
 # Function to verify checksum
 def verify_checksum(seq_num_bytes, received_checksum, data):
     calculated_checksum = calculate_checksum(seq_num_bytes + data)
     return calculated_checksum == received_checksum
+
 
 # Function to simulate data packet bit errors
 def introduce_data_packet_bit_errors(data_packet, error_rate):
@@ -38,6 +36,7 @@ def introduce_data_packet_bit_errors(data_packet, error_rate):
         corrupted_byte = data_packet[byte_index] ^ (1 << bit_index)  # Flip the selected bit
         data_packet = data_packet[:byte_index] + bytes([corrupted_byte]) + data_packet[byte_index + 1:]
     return data_packet
+
 
 # Function to start UDP server
 def start_udp_server(port=SERVER_PORT):
@@ -50,7 +49,6 @@ def start_udp_server(port=SERVER_PORT):
         os.makedirs(output_directory)
     output_file_path = os.path.join(output_directory, 'output.jpg')
 
-    window_start = 0
     next_seq_num = 0
     packet_buffer = {}
     expected_ack = 0
@@ -74,24 +72,32 @@ def start_udp_server(port=SERVER_PORT):
             if verify_checksum(seq_num_bytes, received_checksum, data):
                 if seq_num == expected_ack:
                     packet_buffer[seq_num] = data
-                    file.write(data)
                     while next_seq_num in packet_buffer:
+                        file.write(packet_buffer[next_seq_num])
                         del packet_buffer[next_seq_num]
                         next_seq_num += 1
                         expected_ack = (expected_ack + 1) % (2 ** SEQUENCE_SIZE)
-                    ack_packet = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
+                    ack_packet = create_ack_packet(expected_ack)
                     server_socket.sendto(ack_packet, client_address)
                 else:
                     # Packet received out of order
                     if seq_num not in packet_buffer:
                         packet_buffer[seq_num] = data
-                        ack_packet = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
+                        ack_packet = create_ack_packet(seq_num)
                         server_socket.sendto(ack_packet, client_address)
             else:
                 print(f"Checksum mismatch for packet {seq_num}. Packet discarded.")
 
     server_socket.close()
     print("Server shutdown.")
+
+
+# Function to create acknowledgment packet
+def create_ack_packet(seq_num):
+    seq_num_bytes = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
+    checksum = calculate_checksum(seq_num_bytes)
+    return seq_num_bytes + checksum
+
 
 if __name__ == "__main__":
     start_udp_server()
