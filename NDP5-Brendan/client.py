@@ -20,9 +20,9 @@ ACK_PACKET_LOSS_RATE = 0  # Loss rate for ACK packets
 
 # Function to calculate checksum
 def calculate_checksum(data):
-        s = sum(data)
-        checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
-        return checksum_hex.encode('utf-8')
+    s = sum(data)
+    checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
+    return checksum_hex.encode('utf-8')
 
 
 # Function to verify checksum
