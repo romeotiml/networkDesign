@@ -1,0 +1,92 @@
+import socket as sk
+import hashlib
+from threading import Timer
+# import os
+
+
+SERVER_ADDRESS = 'localhost'
+SERVER_PORT = 12001
+TIMEOUT = 0.05  # Timeout for packet retransmission
+WINDOW_SIZE = 10
+PACKET_SIZE = 1024
+BUFFER_SIZE = 2048
+
+
+def calculate_checksum(data):
+    return hashlib.md5(data).digest()
+
+
+def create_packet(seq_num, data):
+    seq_num_bytes = seq_num.to_bytes(4, byteorder='big')
+    checksum = calculate_checksum(seq_num_bytes + data)
+    return seq_num_bytes + checksum + data
+
+
+def send_packet(client_socket, packet, address):
+    client_socket.sendto(packet, address)
+
+
+def resend_packets(client_socket, packets, address, start_index):
+    for packet in packets[start_index:]:
+        send_packet(client_socket, packet, address)
+
+
+def gbn_sender(path_to_file):
+    client_socket = sk.socket(sk.AF_INET, sk.SOCK_DGRAM)
+    client_socket.settimeout(TIMEOUT)
+
+    seq_num = 0
+    base = 0
+    packets = []
+    timer = None
+
+    def timeout():
+        print("Timeout, resending window starting from sequence number", base)
+        resend_packets(client_socket, packets, (SERVER_ADDRESS, SERVER_PORT), base - seq_num)
+
+    try:
+        with open(path_to_file, "rb") as file:
+            data = file.read(PACKET_SIZE)
+            while data:
+                if seq_num < base + WINDOW_SIZE:
+                    packet = create_packet(seq_num, data)
+                    packets.append(packet)
+                    send_packet(client_socket, packet, (SERVER_ADDRESS, SERVER_PORT))
+                    print(f"Sent packet {seq_num}")
+                    if base == seq_num:
+                        timer = Timer(TIMEOUT, timeout)
+                        timer.start()
+                    seq_num += 1
+                    data = file.read(PACKET_SIZE)
+                else:
+                    ack_packet, _ = client_socket.recvfrom(BUFFER_SIZE)
+                    ack_seq_num = int.from_bytes(ack_packet[:4], byteorder='big')
+                    if ack_seq_num >= base:
+                        base = ack_seq_num + 1
+                        print(f"ACK received for packet {ack_seq_num}")
+                        if timer:
+                            timer.cancel()
+                            timer = Timer(TIMEOUT, timeout)
+                            timer.start()
+        # Ensure all packets are acknowledged
+        while base < seq_num:
+            ack_packet, _ = client_socket.recvfrom(BUFFER_SIZE)
+            ack_seq_num = int.from_bytes(ack_packet[:4], byteorder='big')
+            if ack_seq_num >= base:
+                base = ack_seq_num + 1
+                print(f"Final ACK received for packet {ack_seq_num}")
+                if timer:
+                    timer.cancel()
+
+    except sk.timeout:
+        timeout()
+    finally:
+        if timer:
+            timer.cancel()
+        client_socket.close()
+        print("File transfer completed.")
+
+
+if __name__ == "__main__":
+    transfer_file_path = r"C:\Users\Cookies Father\Desktop\GT3_510.jpg"
+    gbn_sender(transfer_file_path)
