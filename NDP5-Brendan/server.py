@@ -15,11 +15,9 @@ TIMEOUT = 0.1  # Timeout value for retransmissions
 
 # Function to calculate checksum
 def calculate_checksum(data):
-    s = 0
-    for byte in data:
-        s += byte  # Sum up the byte values
+    s = sum(data)
     checksum_hex = hex(s & 0xffffffffffffffff)[2:].zfill(16)
-    return checksum_hex.encode('utf-8')  # Convert the hexadecimal string to bytes
+    return checksum_hex.encode('utf-8')
 
 
 # Function to verify checksum
