@@ -1,0 +1,47 @@
+import socket
+import hashlib
+import os
+
+SERVER_PORT = 12001
+BUFFER_SIZE = 2048
+
+
+def calculate_checksum(data):
+    return hashlib.md5(data).digest()
+
+
+def start_gbn_server(output_dir):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('', SERVER_PORT))
+    print("Server listening on port", SERVER_PORT)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_file_path = os.path.join(output_dir, 'output.bmp')
+
+    expected_seq_num = 0
+
+    try:
+        with open(output_file_path, 'wb') as file:
+            while True:
+                packet, client_address = server_socket.recvfrom(BUFFER_SIZE)
+                seq_num = int.from_bytes(packet[:4], byteorder='big')
+                received_checksum = packet[4:20]
+                data = packet[20:]
+
+                calculated_checksum = calculate_checksum(packet[:4] + data)
+                if calculated_checksum == received_checksum and seq_num == expected_seq_num:
+                    print(f"Packet {seq_num} received correctly.")
+                    file.write(data)
+                    ack_packet = seq_num.to_bytes(4, byteorder='big')
+                    server_socket.sendto(ack_packet, client_address)
+                    expected_seq_num += 1
+                # No need to handle out-of-order packets as per GBN; they are simply not acknowledged
+    finally:
+        server_socket.close()
+        print("Server shutdown.")
+
+
+if __name__ == "__main__":
+    output_directory = r'C:\Users\Cookies Father\Desktop'  # Adjust this path
+    start_gbn_server(output_directory)
