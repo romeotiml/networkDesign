@@ -5,7 +5,7 @@ import random
 SERVER_PORT = 12001
 SEQUENCE_SIZE = 4
 CHECKSUM_SIZE = 16
-WINDOW_SIZE = 5  # Adjust window size as needed
+WINDOW_SIZE = 10  # Adjust window size as needed
 
 # Scenario settings for server
 DATA_PACKET_BIT_ERROR_RATE = 0  # Bit error rate for data packets
@@ -32,16 +32,25 @@ def introduce_data_packet_bit_errors(data_packet, error_rate):
         data_packet = data_packet[:byte_index] + bytes([corrupted_byte]) + data_packet[byte_index + 1:]
     return data_packet
 
+# Function to create acknowledgment packet
+def create_ack_packet(seq_num):
+    print("Attempting to create ACK packet!")
+    seq_num_bytes = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
+    checksum = calculate_checksum(seq_num_bytes)
+    print(f"ACK packet created with sequence number {seq_num} and checksum {checksum.hex()}.")
+    return seq_num_bytes + checksum
+
+
 # Function to start UDP server
 def start_udp_server(port=SERVER_PORT):
     server_socket = socket(AF_INET, SOCK_DGRAM)
     server_socket.bind(('', port))
     print(f"Server listening on port {port}.")
 
-    output_directory = r"C:\Users\Cookies Father\Desktop"
+    output_directory = r"C:\Users\romeo\OneDrive\Music\Desktop"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
-    output_file_path = os.path.join(output_directory, 'output.jpg')
+    output_file_path = os.path.join(output_directory, 'output.bmp')
 
     next_seq_num = 0  # Expected sequence number of the next packet
     packet_buffer = {}
@@ -49,6 +58,7 @@ def start_udp_server(port=SERVER_PORT):
 
     with open(output_file_path, 'wb') as file:
         print("Ready to receive data...")
+
         while True:
             packet, client_address = server_socket.recvfrom(2048)
             if random.random() < DATA_PACKET_LOSS_RATE:
@@ -64,15 +74,20 @@ def start_udp_server(port=SERVER_PORT):
             data = introduce_data_packet_bit_errors(data, DATA_PACKET_BIT_ERROR_RATE)
 
             if verify_checksum(seq_num_bytes, received_checksum, data):
+                seq_num = int.from_bytes(seq_num_bytes, byteorder='big')
+                print(f"Checksum verified for packet {seq_num}.")
+
                 if window_base <= seq_num < window_base + WINDOW_SIZE:
                     packet_buffer[seq_num] = data
                     # Send acknowledgment
                     ack_packet = create_ack_packet(seq_num)
                     server_socket.sendto(ack_packet, client_address)
+                    print(f"ACK sent for packet {seq_num}.")
 
                     # Slide window and write data to file if packets are in order
                     while window_base in packet_buffer:
                         file.write(packet_buffer[window_base])
+                        print(f"Packet {window_base} accepted and processed.")
                         del packet_buffer[window_base]
                         window_base += 1
             else:
@@ -80,12 +95,6 @@ def start_udp_server(port=SERVER_PORT):
 
     server_socket.close()
     print("Server shutdown.")
-
-# Function to create acknowledgment packet
-def create_ack_packet(seq_num):
-    seq_num_bytes = seq_num.to_bytes(SEQUENCE_SIZE, byteorder='big')
-    checksum = calculate_checksum(seq_num_bytes)
-    return seq_num_bytes + checksum
 
 if __name__ == "__main__":
     start_udp_server()
